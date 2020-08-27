@@ -35,10 +35,6 @@ public struct ColorWheel: View {
     public var strokeWidth: CGFloat
     
     public var body: some View {
-        let indicatorOffset = CGSize(
-            width: cos(color.wrappedValue.angle.radians) * Double(frame.midX - strokeWidth / 2),
-            height: sin(color.wrappedValue.angle.radians) * Double(frame.midY - strokeWidth / 2))
-        return
 			ZStack(alignment: .center) {
 				// Color Gradient
 				Circle()
@@ -47,25 +43,14 @@ public struct ColorWheel: View {
 								.onChanged(self.update(value:))
 					)
 				// Color Selection Indicator
-				Circle()
-					.fill(Color(color.wrappedValue))
-					.frame(width: strokeWidth, height: strokeWidth, alignment: .center)
-					.fixedSize()
-					.offset(indicatorOffset)
-					.allowsHitTesting(false)
+				Reticle(angle: color.wrappedValue.angle, wheelWidth: strokeWidth)
+					.foregroundColor(Color(color.wrappedValue))
 					.overlay(
-						Circle()
-							.stroke(Color(UIColor.label), lineWidth: 3)
-							.offset(indicatorOffset)
+						Reticle(angle: color.wrappedValue.angle, wheelWidth: strokeWidth)
+							.stroke(Color(UIColor.label), lineWidth: 2)
 							.allowsHitTesting(false)
 					)
 			}
-    }
-    
-    public init(color: Binding<DynamicColor>, frame: CGRect, strokeWidth: CGFloat) {
-       self.frame = frame
-       self.color = color
-       self.strokeWidth = strokeWidth
     }
     
     func update(value: DragGesture.Value) {
@@ -82,3 +67,22 @@ public struct ColorWheel: View {
     }
 }
 
+struct Reticle : Shape {
+	public var angle : Angle
+	public var wheelWidth : CGFloat
+
+	func path(in rect: CGRect) -> Path {
+		var p = Path()
+		
+		let wheelCenter = CGPoint(x: rect.midX, y: rect.midY)
+		let wheelRadius = rect.width / 2.0
+		// calculate the angle that makes the reticle fill a circle with a diameter is equal to the wheel width.
+		let delta = Angle(radians: asin(Double(wheelWidth / (wheelRadius - (wheelWidth / 2.0)) / 2.0)))
+
+		p.addArc(center: wheelCenter, radius: wheelRadius, startAngle: angle + delta, endAngle: angle - delta, clockwise: true)
+		p.addArc(center: wheelCenter, radius: wheelRadius - wheelWidth, startAngle: angle - delta, endAngle: angle + delta, clockwise: false)
+		p.closeSubpath()
+		
+		return p
+	}
+}
