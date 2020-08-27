@@ -54,7 +54,7 @@ public struct ColorWheel: View {
                 .allowsHitTesting(false)
                 .overlay(
                     Circle()
-                        .stroke(Color.white, lineWidth: 3)
+                        .stroke(Color(UIColor.label), lineWidth: 3)
                         .offset(indicatorOffset)
                         .allowsHitTesting(false)
             )
