@@ -25,29 +25,23 @@ extension DynamicColor {
 }
 
 extension AngularGradient {
-    static let conic = AngularGradient(gradient: Gradient.colorWheelSpectrum, center: .center, angle: .degrees(-90))
+    static let conic = AngularGradient(gradient: Gradient.colorWheelSpectrum, center: .center, angle: .degrees(0))
 }
 
 extension Gradient {
-    static let colorWheelSpectrum: Gradient = Gradient(colors: [
-        Angle(radians: 3/6 * .pi).colorView,
-        
-        Angle(radians: 2/6 * .pi).colorView,
-        Angle(radians: 1/6 * .pi).colorView,
-        Angle(radians: 12/6 * .pi).colorView,
-        
-        Angle(radians: 11/6 * .pi).colorView,
-        
-        Angle(radians: 10/6 * .pi).colorView,
-        Angle(radians: 9/6 * .pi).colorView,
-        Angle(radians: 8/6 * .pi).colorView,
-        
-        Angle(radians: 7/6 * .pi).colorView,
-        
-        Angle(radians: 6/6 * .pi).colorView,
-        Angle(radians: 5/6 * .pi).colorView,
-        Angle(radians: 4/6 * .pi).colorView,
-        
-        Angle(radians: 3/6 * .pi).colorView,
-    ])
+	static let colorWheelSpectrum: Gradient = Gradient(colors: [
+		Angle(radians: 0/6 * .pi).colorView,
+		Angle(radians: 1/6 * .pi).colorView,
+		Angle(radians: 2/6 * .pi).colorView,
+		Angle(radians: 3/6 * .pi).colorView,
+		Angle(radians: 4/6 * .pi).colorView,
+		Angle(radians: 5/6 * .pi).colorView,
+		Angle(radians: 6/6 * .pi).colorView,
+		Angle(radians: 7/6 * .pi).colorView,
+		Angle(radians: 8/6 * .pi).colorView,
+		Angle(radians: 9/6 * .pi).colorView,
+		Angle(radians: 10/6 * .pi).colorView,
+		Angle(radians: 11/6 * .pi).colorView,
+		Angle(radians: 12/6 * .pi).colorView
+	])
 }
