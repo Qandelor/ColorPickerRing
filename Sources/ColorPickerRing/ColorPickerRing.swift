@@ -13,24 +13,24 @@ import SwiftUI
 import DynamicColor
 
 public struct ColorPickerRing : View {
-    public var color: Binding<DynamicColor>
+	@Binding public var color : DynamicColor
     public var strokeWidth: CGFloat = 30
     
     public var body: some View {
         GeometryReader {
-            ColorWheel(color: self.color, frame: $0.frame(in: .local), strokeWidth: self.strokeWidth)
+            ColorWheel(color: self.$color, frame: $0.frame(in: .local), strokeWidth: self.strokeWidth)
         }
         .aspectRatio(1, contentMode: .fit)
     }
     
     public init(color: Binding<DynamicColor>, strokeWidth: CGFloat) {
-       self.color = color
-       self.strokeWidth = strokeWidth
+		self._color = color
+		self.strokeWidth = strokeWidth
     }
 }
 
 public struct ColorWheel: View {
-    public var color: Binding<DynamicColor>
+	@Binding public var color : DynamicColor
     public var frame: CGRect
     public var strokeWidth: CGFloat
     
@@ -43,10 +43,10 @@ public struct ColorWheel: View {
 								.onChanged(self.update(value:))
 					)
 				// Color Selection Indicator
-				Reticle(angle: color.wrappedValue.angle, wheelWidth: strokeWidth)
-					.foregroundColor(Color(color.wrappedValue))
+				Reticle(angle: color.angle, wheelWidth: strokeWidth)
+					.foregroundColor(Color(color))
 					.overlay(
-						Reticle(angle: color.wrappedValue.angle, wheelWidth: strokeWidth)
+						Reticle(angle: color.angle, wheelWidth: strokeWidth)
 							.stroke(Color(UIColor.label), lineWidth: 2)
 							.allowsHitTesting(false)
 					)
@@ -54,7 +54,7 @@ public struct ColorWheel: View {
     }
     
     func update(value: DragGesture.Value) {
-        self.color.wrappedValue = Angle(radians: radCenterPoint(value.location, frame: self.frame)).color
+        self.color = Angle(radians: radCenterPoint(value.location, frame: self.frame)).color
     }
     
 	/// Convert location in view space to an angle in polar space.
