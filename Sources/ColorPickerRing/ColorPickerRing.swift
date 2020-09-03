@@ -12,25 +12,69 @@
 import SwiftUI
 import DynamicColor
 
+@available(iOS 14.0, *)
 public struct ColorPickerRing : View {
 	@Binding public var color : DynamicColor
-    public var strokeWidth: CGFloat = 30
+	public var strokeWidth: CGFloat
+	public var components : ColorManipulator
     
     public var body: some View {
-        GeometryReader {
-            ColorWheel(color: self.$color, frame: $0.frame(in: .local), strokeWidth: self.strokeWidth)
-        }
-        .aspectRatio(1, contentMode: .fit)
-    }
-    
-    public init(color: Binding<DynamicColor>, strokeWidth: CGFloat) {
+		ColorPickerRingImpl(components: self.components, strokeWidth: self.strokeWidth)
+	}
+	
+	public init(color: Binding<DynamicColor>, strokeWidth: CGFloat = 30.0)
+	{
 		self._color = color
 		self.strokeWidth = strokeWidth
-    }
+		self.components = ColorManipulator(color: color)
+	}
+}
+
+@available(iOS 14.0, *)
+public struct ColorPickerRingImpl : View {
+	@StateObject public var components : ColorManipulator
+	public var strokeWidth: CGFloat = 30
+
+	public var body: some View {
+		VStack {
+			GeometryReader {
+				ColorWheel(components: self.components, frame: $0.frame(in: .local), strokeWidth: self.strokeWidth)
+			}
+			.aspectRatio(1, contentMode: .fit)
+			HStack {
+				Text("Saturation").font(.caption)
+				Slider(value: self.$components.saturation, in: 0...1.0,
+					   minimumValueLabel: Text("0.0" ).font(.caption),
+					   maximumValueLabel: Text("1.0" ).font(.caption), label: { EmptyView() })
+				Text("= \(self.components.saturation, specifier: "%.2f")").font(.caption)
+			}
+			HStack {
+				Text("Brightness").font(.caption)
+				Slider(value: self.$components.brightness, in: 0...1.0,
+					   minimumValueLabel: Text("0.0" ).font(.caption),
+					   maximumValueLabel: Text("1.0" ).font(.caption),
+					   label: {
+						Text("label is never displayed?!")
+				})
+				Text("= \(self.components.brightness, specifier: "%.2f")").font(.caption)
+			}
+			HStack {
+				Text("Alpha").font(.caption)
+				Slider(value: self.$components.alpha, in: 0...1.0,
+					   minimumValueLabel: Text("0.0" ).font(.caption),
+					   maximumValueLabel: Text("1.0" ).font(.caption),
+					   label: {
+						Text("label is never displayed?!")
+				})
+				Text("= \(self.components.alpha, specifier: "%.2f")").font(.caption)
+			}
+		}
+	}
 }
 
 public struct ColorWheel: View {
-	@Binding public var color : DynamicColor
+	@ObservedObject public var components : ColorManipulator
+	
     public var frame: CGRect
     public var strokeWidth: CGFloat
     
@@ -38,23 +82,23 @@ public struct ColorWheel: View {
 			ZStack(alignment: .center) {
 				// Color Gradient
 				Circle()
-					.strokeBorder(AngularGradient.conic, lineWidth: strokeWidth)
+					.strokeBorder(AngularGradient.hue(base: self.components.color),
+								  lineWidth: strokeWidth)
 					.gesture(DragGesture(minimumDistance: 0, coordinateSpace: .local)
 								.onChanged(self.update(value:))
 					)
 				// Color Selection Indicator
-				Reticle(angle: color.angle, wheelWidth: strokeWidth)
-					.foregroundColor(Color(color))
+				Reticle(angle: self.components.angularHue, wheelWidth: strokeWidth)
+					.foregroundColor(self.components.color.native)
 					.overlay(
-						Reticle(angle: color.angle, wheelWidth: strokeWidth)
+						Reticle(angle: self.components.angularHue, wheelWidth: strokeWidth)
 							.stroke(Color(UIColor.label), lineWidth: 2)
-							.allowsHitTesting(false)
 					)
 			}
     }
     
     func update(value: DragGesture.Value) {
-        self.color = Angle(radians: radCenterPoint(value.location, frame: self.frame)).color
+		self.components.angularHue = Angle(radians: radCenterPoint(value.location, frame: self.frame))
     }
     
 	/// Convert location in view space to an angle in polar space.
