@@ -21,7 +21,7 @@ public struct ColorPickerRing<Medalion> : View
 	public var medalion : Medalion?
 	
     public var body: some View {
-		ColorPickerRingImpl(components: ColorManipulator(color: $color), strokeWidth: self.strokeWidth, medalion: medalion)
+		ColorPickerRingImpl(components: ColorManipulator(color: $color), ringWidth: self.strokeWidth, medalion: medalion)
 	}
 
 	public init(color: Binding<DynamicColor>, strokeWidth: CGFloat = 30.0) {
@@ -42,7 +42,7 @@ public struct ColorPickerRingImpl<Medalion> : View
 	where Medalion : View
 {
 	@StateObject public var components : ColorManipulator
-	public var strokeWidth: CGFloat = 30
+	public var ringWidth: CGFloat = 30
 	public var medalion : Medalion?
 
 	private var medalionView : AnyView {
@@ -56,7 +56,7 @@ public struct ColorPickerRingImpl<Medalion> : View
 	public var body: some View {
 		VStack {
 			GeometryReader {
-				ColorWheel(components: self.components, frame: $0.frame(in: .local), strokeWidth: self.strokeWidth)
+				ColorWheel(components: self.components, frame: $0.frame(in: .local), strokeWidth: self.ringWidth)
 					.overlay(self.medalionView)
 			}
 			.aspectRatio(1, contentMode: .fit)
