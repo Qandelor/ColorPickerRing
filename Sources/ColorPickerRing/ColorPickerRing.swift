@@ -13,32 +13,51 @@ import SwiftUI
 import DynamicColor
 
 @available(iOS 14.0, *)
-public struct ColorPickerRing : View {
+public struct ColorPickerRing<Medalion> : View
+	where Medalion : View
+{
 	@Binding public var color : DynamicColor
 	public var strokeWidth: CGFloat
-	public var components : ColorManipulator
-    
-    public var body: some View {
-		ColorPickerRingImpl(components: self.components, strokeWidth: self.strokeWidth)
-	}
+	public var medalion : Medalion?
 	
-	public init(color: Binding<DynamicColor>, strokeWidth: CGFloat = 30.0)
-	{
+    public var body: some View {
+		ColorPickerRingImpl(components: ColorManipulator(color: $color), strokeWidth: self.strokeWidth, medalion: medalion)
+	}
+
+	public init(color: Binding<DynamicColor>, strokeWidth: CGFloat = 30.0) {
 		self._color = color
 		self.strokeWidth = strokeWidth
-		self.components = ColorManipulator(color: color)
+		self.medalion = nil
+	}
+	
+	public init(color: Binding<DynamicColor>, strokeWidth: CGFloat = 30.0, @ViewBuilder around medalion: () -> Medalion)
+	{
+		self.init(color: color, strokeWidth: strokeWidth)
+		self.medalion = medalion()
 	}
 }
 
 @available(iOS 14.0, *)
-public struct ColorPickerRingImpl : View {
+public struct ColorPickerRingImpl<Medalion> : View
+	where Medalion : View
+{
 	@StateObject public var components : ColorManipulator
 	public var strokeWidth: CGFloat = 30
+	public var medalion : Medalion?
 
+	private var medalionView : AnyView {
+		if let _medalion = self.medalion {
+			return AnyView(_medalion)
+		} else {
+			return AnyView(EmptyView())
+		}
+	}
+	
 	public var body: some View {
 		VStack {
 			GeometryReader {
 				ColorWheel(components: self.components, frame: $0.frame(in: .local), strokeWidth: self.strokeWidth)
+					.overlay(self.medalionView)
 			}
 			.aspectRatio(1, contentMode: .fit)
 			HStack {
